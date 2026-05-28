@@ -10,6 +10,8 @@
   },
   "exclude": [
     "**/*.test.js",
+    "**/*.test.ts",
+    "**/*.types.ts",
     "node_modules",
     "coverage",
     ".github"
