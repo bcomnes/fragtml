@@ -4,7 +4,12 @@ import html, {
   DuplicateFragmentError,
   FragmentBoundaryError,
   FragmentNotFoundError,
+  HtmlResult,
+  RawHtml,
   frag,
+  isFragmentBoundary,
+  isHtmlResult,
+  isRawHtml,
   raw,
   render
 } from './index.js'
@@ -14,8 +19,16 @@ test('exports public API', () => {
   assert.equal(frag, html)
   assert.equal(html.raw, raw)
   assert.equal(typeof render, 'function')
+  assert.equal(typeof HtmlResult, 'function')
+  assert.equal(typeof RawHtml, 'function')
+  assert.equal(typeof isFragmentBoundary, 'function')
+  assert.equal(typeof isHtmlResult, 'function')
+  assert.equal(typeof isRawHtml, 'function')
   assert.equal(typeof html.fragment.start, 'function')
   assert.equal(typeof html.fragment.end, 'object')
+  assert.equal(isHtmlResult(html`<p>ok</p>`), true)
+  assert.equal(isRawHtml(raw('<p>ok</p>')), true)
+  assert.equal(isFragmentBoundary(html.fragment.start('test')), true)
   assert.equal(Object.hasOwn(api, 'createHtml'), false)
 })
 
