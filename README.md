@@ -355,6 +355,42 @@ Marks trusted HTML so it is inserted without escaping.
 html`<p>${raw('<strong>trusted</strong>')}</p>`
 ```
 
+### `HtmlResult`
+
+Class returned by `html` and `frag` tagged templates.
+
+```js
+import html, { HtmlResult } from 'fragtml'
+
+const result = html`<p>Hello</p>`
+
+result instanceof HtmlResult
+```
+
+### `RawHtml`
+
+Class returned by `raw(value)` and `html.raw(value)`.
+
+```js
+import { RawHtml, raw } from 'fragtml'
+
+const trusted = raw('<strong>trusted</strong>')
+
+trusted instanceof RawHtml
+```
+
+### Type guards
+
+Use the public type guards to narrow unknown values without importing from internal `lib/` paths:
+
+```js
+import {
+  isFragmentBoundary,
+  isHtmlResult,
+  isRawHtml
+} from 'fragtml'
+```
+
 ### Boolean attributes
 
 Use unquoted `?name=${condition}` syntax to toggle a boolean attribute.
@@ -392,6 +428,35 @@ import {
 ## TypeScript
 
 `fragtml` is written in typed JavaScript and ships generated declaration files.
+
+Caller-facing types are exported from the package root:
+
+```ts
+import type {
+  FragmentBoundary,
+  FragmentEndBoundary,
+  FragmentHelpers,
+  FragmentStartBoundary,
+  HtmlArrayScalarSubstitution,
+  HtmlArraySubstitution,
+  HtmlPrimitiveSubstitution,
+  HtmlSubstitution,
+  HtmlTag,
+  RawHtml,
+  RenderOptions,
+  TemplateStrings
+} from 'fragtml'
+```
+
+`HtmlResult` is both a runtime class and an importable type:
+
+```ts
+import type { HtmlResult } from 'fragtml'
+
+function sendHtml (result: HtmlResult) {
+  return result.toString()
+}
+```
 
 ## License
 
