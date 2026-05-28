@@ -4,32 +4,43 @@ import type {
   FragmentEndBoundary,
   FragmentHelpers,
   FragmentStartBoundary,
+  HtmlArrayScalarSubstitution,
+  HtmlArraySubstitution,
+  HtmlPrimitiveSubstitution,
   HtmlResult,
   HtmlSubstitution,
   HtmlTag,
   RawHtml,
   RenderOptions,
   TemplateStrings
-} from './index.js'
+} from './types.js'
 
 declare const safeText: string & { readonly __safeText: unique symbol }
 declare const safeId: number & { readonly __safeId: unique symbol }
 
-const h = frag({ fragmentId: 'content' })
+type ContentFragment = 'content'
+
+const h = frag<ContentFragment>({ fragmentId: 'content' })
 const child = html`<span>${safeText}</span>`
 const trusted = raw('<strong>trusted</strong>')
 const readonlyValues = ['text', 1, 1n, false, null, undefined, child, trusted] as const
-const typedResult: HtmlResult = child
+const typedPrimitiveSubstitution: HtmlPrimitiveSubstitution = safeText
+const typedArrayScalarSubstitution: HtmlArrayScalarSubstitution = child
+const typedArraySubstitution: HtmlArraySubstitution = readonlyValues
+const typedResult: HtmlResult = h`<span>${safeText}</span>`
 const typedRaw: RawHtml = trusted
-const typedSubstitution: HtmlSubstitution = child
-const typedTag: HtmlTag = frag
-const typedOptions: RenderOptions = { fragmentId: 'content' }
-const typedBoundary: FragmentBoundary = h.fragment.start('content')
-const typedStartBoundary: FragmentStartBoundary = h.fragment.start('content')
+const typedSubstitution: HtmlSubstitution<ContentFragment> = child
+const typedTag: HtmlTag<ContentFragment> = h
+const typedOptions: RenderOptions<ContentFragment> = { fragmentId: 'content' }
+const typedBoundary: FragmentBoundary<ContentFragment> = h.fragment.start('content')
+const typedStartBoundary: FragmentStartBoundary<ContentFragment> = h.fragment.start('content')
 const typedEndBoundary: FragmentEndBoundary = h.fragment.end
-const typedFragmentHelpers: FragmentHelpers = h.fragment
+const typedFragmentHelpers: FragmentHelpers<ContentFragment> = h.fragment
 const typedTemplateStrings: TemplateStrings = [''] as const
 
+void typedPrimitiveSubstitution
+void typedArrayScalarSubstitution
+void typedArraySubstitution
 void typedResult
 void typedRaw
 void typedSubstitution
@@ -74,3 +85,6 @@ html`${[{ value: 'text' }]}`
 
 // @ts-expect-error fragment boundaries only work as direct substitutions.
 html`${[h.fragment.start('content'), h.fragment.end]}`
+
+// @ts-expect-error typed fragment tags only allow declared fragment names.
+h.fragment.start('other')

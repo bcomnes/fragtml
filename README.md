@@ -241,6 +241,7 @@ In TypeScript, you can use an explicit fragment-name union to type-check both in
 
 ```ts
 import { frag, render } from 'fragtml'
+import type { RenderOptions } from 'fragtml/types.js'
 
 const contactFragments = {
   archiveUi: 'archive-ui',
@@ -254,8 +255,7 @@ export function contactDetail ({
   fragmentId
 }: {
   contact: Contact
-  fragmentId?: ContactFragment
-}) {
+} & RenderOptions<ContactFragment>) {
   const html = frag<ContactFragment>(fragmentId)
 
   return render(html`
@@ -429,7 +429,7 @@ import {
 
 `fragtml` is written in typed JavaScript and ships generated declaration files.
 
-Caller-facing types are exported from the package root:
+Runtime classes such as `HtmlResult` and `RawHtml` are exported from the package root. Type-only aliases are exported from `fragtml/types.js`:
 
 ```ts
 import type {
@@ -445,16 +445,21 @@ import type {
   RawHtml,
   RenderOptions,
   TemplateStrings
-} from 'fragtml'
+} from 'fragtml/types.js'
 ```
 
-`HtmlResult` is both a runtime class and an importable type:
+`HtmlResult` is both a runtime class from the package root and an importable type from `fragtml/types.js`:
 
 ```ts
-import type { HtmlResult } from 'fragtml'
+import { HtmlResult } from 'fragtml'
+import type { HtmlResult as HtmlResultType } from 'fragtml/types.js'
 
-function sendHtml (result: HtmlResult) {
+function sendHtml (result: HtmlResultType) {
   return result.toString()
+}
+
+function isHtmlResultValue (value: unknown): value is HtmlResultType {
+  return value instanceof HtmlResult
 }
 ```
 

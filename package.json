@@ -30,6 +30,8 @@
     "index.js",
     "index.d.ts",
     "index.d.ts.map",
+    "types.d.ts",
+    "types.d.ts.map",
     "lib"
   ],
   "repository": {
