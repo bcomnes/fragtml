@@ -1,9 +1,9 @@
-import html, { createHtml, raw, render } from './index.js'
+import html, { frag, raw, render } from './index.js'
 
 declare const safeText: string & { readonly __safeText: unique symbol }
 declare const safeId: number & { readonly __safeId: unique symbol }
 
-const h = createHtml({ fragmentId: 'content' })
+const h = frag({ fragmentId: 'content' })
 const child = html`<span>${safeText}</span>`
 const trusted = raw('<strong>trusted</strong>')
 const readonlyValues = ['text', 1, 1n, false, null, undefined, child, trusted] as const

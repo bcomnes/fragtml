@@ -156,45 +156,15 @@ html`<button ?disabled="${loading}">Save</button>`
 html`<button ?disabled='${loading}'>Save</button>`
 ```
 
-## Bound tags
-
-`html(options)` returns a configured tag. This is useful for fragment rendering and for editor syntax highlighting, because many editors highlight tagged templates better when the tag is a simple identifier.
-
-```js
-import { createHtml, render } from 'fragtml'
-
-export function view ({ fragmentId }) {
-  const html = createHtml({ fragmentId })
-
-  return render(html`
-    <main>...</main>
-  `)
-}
-```
-
-`createHtml` is an alias of `html`:
-
-```js
-import html, { createHtml } from 'fragtml'
-
-createHtml === html
-```
-
-You can also use the short fragment-target form:
-
-```js
-const html = createHtml('archive-ui')
-```
-
-which is equivalent to:
-
-```js
-const html = createHtml({ fragmentId: 'archive-ui' })
-```
-
 ## Fragments
 
-Fragments mark a named range inside a larger template. Rendering without `fragmentId` returns the whole template. Rendering with `fragmentId` returns only that fragment.
+Fragments mark named ranges inside a larger template. Calling `html(fragmentId)` on that template renders either the full template or one selected fragment:
+
+- `html()` / `html(undefined)` renders the full template.
+- `html('archive-ui')` renders only the `archive-ui` fragment.
+- `html({ fragmentId: 'archive-ui' })` is the options-object form.
+
+This lets one view function serve both full-page requests and htmx-style fragment requests by passing the requested fragment ID through to `html(fragmentId)`.
 
 This mirrors the htmx article’s idea:
 
@@ -215,12 +185,10 @@ ${html.fragment.end}
 ### Example
 
 ```js
-import { createHtml, render } from 'fragtml'
+import html, { render } from 'fragtml'
 
 export function contactDetail ({ contact, fragmentId }) {
-  const html = createHtml({ fragmentId })
-
-  return render(html`
+  return render(html(fragmentId)`
     <html>
       <body>
         <div hx-target="this">
@@ -253,6 +221,51 @@ contactDetail({ contact, fragmentId: 'archive-ui' })
 
 Fragment boundary tokens are not included in either output.
 
+If you want a simple local tag name for editor highlighting or repeated use, `frag` is an alias of `html`:
+
+```js
+import { frag, render } from 'fragtml'
+
+export function contactDetail ({ contact, fragmentId }) {
+  const html = frag(fragmentId)
+
+  return render(html`
+    ${html.fragment.start('archive-ui')}
+    <button>${contact.archived ? 'Unarchive' : 'Archive'}</button>
+    ${html.fragment.end}
+  `)
+}
+```
+
+In TypeScript, you can use an explicit fragment-name union to type-check both incoming fragment IDs and declared fragment boundaries:
+
+```ts
+import { frag, render } from 'fragtml'
+
+const contactFragments = {
+  archiveUi: 'archive-ui',
+  details: 'details'
+} as const
+
+type ContactFragment = typeof contactFragments[keyof typeof contactFragments]
+
+export function contactDetail ({
+  contact,
+  fragmentId
+}: {
+  contact: Contact
+  fragmentId?: ContactFragment
+}) {
+  const html = frag<ContactFragment>(fragmentId)
+
+  return render(html`
+    ${html.fragment.start(contactFragments.archiveUi)}
+    <button>${contact.archived ? 'Unarchive' : 'Archive'}</button>
+    ${html.fragment.end}
+  `)
+}
+```
+
 ### Fragment rules
 
 - Fragment IDs must be unique within a rendered template.
@@ -266,12 +279,10 @@ Fragment boundary tokens are not included in either output.
 Nested fragments are supported with stack semantics. This is useful when a larger region can be re-rendered as a whole, but a smaller region inside it is also a valid htmx update target.
 
 ```js
-import { createHtml, render } from 'fragtml'
+import html, { render } from 'fragtml'
 
 export function page ({ fragmentId }) {
-  const html = createHtml({ fragmentId })
-
-  return render(html`
+  return render(html(fragmentId)`
     ${html.fragment.start('outer')}
     <section>
       <h2>Outer</h2>
@@ -311,21 +322,21 @@ Safe-by-default template tag.
 html`<p>${value}</p>`
 ```
 
-Also acts as a factory for bound tags:
+Pass a fragment ID before the tagged template to render a selected fragment from that template:
 
 ```js
-const h = html({ fragmentId: 'name' })
-const h = html('name')
+html('name')`...`
+html({ fragmentId: 'name' })`...`
 ```
 
-### `createHtml`
+### `frag`
 
-Alias of `html`, intended for local tag naming:
+Alias of `html`, useful when you want a local tag name for editor highlighting or repeated use:
 
 ```js
-import { createHtml } from 'fragtml'
+import { frag } from 'fragtml'
 
-const html = createHtml({ fragmentId })
+const html = frag(fragmentId)
 ```
 
 ### `render(value)`

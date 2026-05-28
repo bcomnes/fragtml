@@ -1,20 +1,22 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import html, {
-  createHtml,
   DuplicateFragmentError,
   FragmentBoundaryError,
   FragmentNotFoundError,
+  frag,
   raw,
   render
 } from './index.js'
+import * as api from './index.js'
 
 test('exports public API', () => {
-  assert.equal(createHtml, html)
+  assert.equal(frag, html)
   assert.equal(html.raw, raw)
   assert.equal(typeof render, 'function')
   assert.equal(typeof html.fragment.start, 'function')
   assert.equal(typeof html.fragment.end, 'object')
+  assert.equal(Object.hasOwn(api, 'createHtml'), false)
 })
 
 test('safe html escapes substitutions and stringifies result objects', () => {
@@ -188,8 +190,8 @@ test('renders selected fragment only', () => {
   )
 })
 
-test('supports html(fragmentId) shorthand and createHtml alias', () => {
-  const h = createHtml('target')
+test('supports html(fragmentId) shorthand and frag alias', () => {
+  const h = frag('target')
 
   assert.equal(
     render(h`
