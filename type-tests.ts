@@ -5,28 +5,30 @@ import type {
   FragmentHelpers,
   FragmentIdOf,
   FragmentStartBoundary,
-  FragmentTemplateArgs,
   FragmentTemplateContext,
-  FragmentTemplateTypes,
   ContextForFragment,
   ContextOf,
-  FragmentArgs,
   HtmlArrayScalarSubstitution,
   HtmlArraySubstitution,
   HtmlPrimitiveSubstitution,
-  HtmlResult,
   HtmlSubstitution,
-  HtmlTag,
   KeysOfUnion,
   LooseContext,
   Optional,
   OptionalMerge,
-  RawHtml,
-  RenderOptions,
   Simplify,
   TemplateStrings,
   UnionToIntersection,
   WithExtraContext
+} from './lib/html-types.js'
+import type {
+  FragmentArgs,
+  FragmentTemplateArgs,
+  FragmentTemplateTypes,
+  HtmlResult,
+  HtmlTag,
+  RawHtml,
+  RenderOptions
 } from './types.js'
 
 declare const safeText: string & { readonly __safeText: unique symbol }

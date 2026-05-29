@@ -503,18 +503,7 @@ type PageTemplateArgs = FragmentTemplateArgs<PageArgs>
 // }
 ```
 
-`LooseContext<[FullContext, OuterContext, InnerContext]>` is a tuple helper for cases where you still want one context to stay required. Every tuple member is made optional except the last.
-
-Lower-level helpers are also exported for advanced cases:
-
-- `ContextOf<Args>` extracts the union of all `context` values from an argument union.
-- `ContextForFragment<Args, FragmentId>` extracts the context for one fragment target.
-- `FragmentIdOf<Args>` extracts the union of declared fragment IDs from an argument union.
-- `KeysOfUnion<T>` extracts every property key from a union of object types.
-- `Optional<T>` makes every property optional and flattens the resulting object shape.
-- `OptionalMerge<T>` merges a union of object types with every property optional. Shared properties keep the union of their value types.
-- `WithExtraContext<T>` requires the fields from `T` while allowing extra caller data on public fragment args.
-- `UnionToIntersection<T>` and `Simplify<T>` are utility types used by the loose context helpers.
+Most users should start with `FragmentTemplateTypes`. Use `FragmentArgs` and `FragmentTemplateArgs` directly if you prefer to assemble the public and implementation types yourself. Lower-level utility types live in `fragtml/lib/html-types.js` for advanced cases, but they are not part of the recommended surface.
 
 ### Fragment rules
 
@@ -738,32 +727,13 @@ Runtime classes such as `HtmlResult` and `RawHtml` are exported from the package
 
 ```ts
 import type {
-  FragmentBoundary,
-  FragmentEndBoundary,
-  FragmentHelpers,
-  FragmentIdOf,
-  FragmentStartBoundary,
-  ContextForFragment,
-  ContextOf,
   FragmentArgs,
   FragmentTemplateArgs,
-  HtmlArrayScalarSubstitution,
-  HtmlArraySubstitution,
-  HtmlPrimitiveSubstitution,
-  HtmlSubstitution,
-  HtmlTag,
-  FragmentTemplateContext,
   FragmentTemplateTypes,
-  KeysOfUnion,
-  LooseContext,
-  Optional,
-  OptionalMerge,
+  HtmlResult,
+  HtmlTag,
   RawHtml,
-  RenderOptions,
-  Simplify,
-  TemplateStrings,
-  UnionToIntersection,
-  WithExtraContext
+  RenderOptions
 } from 'fragtml/types.js'
 ```
 
