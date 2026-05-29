@@ -14,6 +14,194 @@ A safe-by-default, string-generating HTML tagged template library with inline fr
 
 The practical benefits of inline fragments are still being assessed against function-based composition. Fragments can reduce indirection in large templates by keeping related partial update targets in place, but they also increase type complexity compared with function-based partials.
 
+## Why fragments?
+
+Fragments are useful when a page has several partial update targets, but those targets are easiest to understand in the structure of the full template:
+
+```ts
+import html, { render } from 'fragtml'
+import type { FragmentTemplateTypes } from 'fragtml/types.js'
+
+function dashboardTemplate ({
+  account,
+  feed,
+  fragmentId
+}: DashboardTemplate['templateArgs']) {
+  return html<DashboardTemplate['fragmentId']>(fragmentId)`
+    <main>
+      <h1>Workspace</h1>
+
+      ${html.fragment.start('account-root')}
+      <section id="account">
+        <h2>${account.title}</h2>
+        <p>${account.name}</p>
+
+        ${html.fragment.start('account-primary-action')}
+        <button hx-patch="/accounts/${account.id}">
+          ${account.archived ? 'Restore' : 'Archive'}
+        </button>
+        ${html.fragment.end}
+      </section>
+      ${html.fragment.end}
+
+      ${html.fragment.start('feed-root')}
+      <section id="feed">
+        <h2>${feed.title}</h2>
+        <article>
+          ${feed.latest.title}
+
+          ${html.fragment.start('feed-item-menu')}
+          <menu>
+            <button hx-get="/feed/${feed.latest.id}/menu">Open</button>
+          </menu>
+          ${html.fragment.end}
+        </article>
+      </section>
+      ${html.fragment.end}
+    </main>
+  `
+}
+
+export function dashboard (args: DashboardTemplate['args']) {
+  return render(dashboardTemplate(args))
+}
+
+// Rendering different fragments, with type safety
+dashboard({
+  account: {
+    id: 'acct_123',
+    title: 'Account',
+    name: 'Acme',
+    archived: false
+  },
+  feed: {
+    title: 'Feed',
+    latest: {
+      id: 'item_123',
+      title: 'New signup'
+    }
+  }
+})
+
+dashboard({
+  fragmentId: 'account-primary-action',
+  account: {
+    id: 'acct_123',
+    archived: false
+  }
+})
+
+dashboard({
+  fragmentId: 'feed-item-menu',
+  feed: {
+    latest: {
+      id: 'item_123'
+    }
+  }
+})
+
+type AccountActionContext = {
+  account: {
+    id: string
+    archived: boolean
+  }
+}
+
+type AccountRootContext = AccountActionContext & {
+  account: AccountActionContext['account'] & {
+    title: string
+    name: string
+  }
+}
+
+type FeedItemMenuContext = {
+  feed: {
+    latest: {
+      id: string
+    }
+  }
+}
+
+type FeedRootContext = FeedItemMenuContext & {
+  feed: FeedItemMenuContext['feed'] & {
+    title: string
+    latest: FeedItemMenuContext['feed']['latest'] & {
+      title: string
+    }
+  }
+}
+
+type DashboardTemplate = FragmentTemplateTypes<{
+  fragments: {
+    'account-root': AccountRootContext
+    'account-primary-action': AccountActionContext
+    'feed-root': FeedRootContext
+    'feed-item-menu': FeedItemMenuContext
+  }
+  full: AccountRootContext & FeedRootContext
+}>
+```
+
+The same template can render the full dashboard, `account-root`, `account-primary-action`, `feed-root`, or `feed-item-menu`. The public `dashboard(args)` wrapper enforces the required context fields for each target, while the full-page structure stays visible and each htmx target remains named next to the markup it updates.
+
+For comparison, the same page can be built with function composition. This keeps each partial reusable, but the full-page structure is now spread across several functions. The types are much simpler though and there are less moving parts.
+
+```ts
+function accountPrimaryAction (context: AccountActionContext) {
+  return html`
+    <button hx-patch="/accounts/${context.account.id}">
+      ${context.account.archived ? 'Restore' : 'Archive'}
+    </button>
+  `
+}
+
+function accountRoot (context: AccountRootContext) {
+  return html`
+    <section id="account">
+      <h2>${context.account.title}</h2>
+      <p>${context.account.name}</p>
+      ${accountPrimaryAction(context)}
+    </section>
+  `
+}
+
+function feedItemMenu (context: FeedItemMenuContext) {
+  return html`
+    <menu>
+      <button hx-get="/feed/${context.feed.latest.id}/menu">Open</button>
+    </menu>
+  `
+}
+
+function feedRoot (context: FeedRootContext) {
+  return html`
+    <section id="feed">
+      <h2>${context.feed.title}</h2>
+      <article>
+        ${context.feed.latest.title}
+        ${feedItemMenu(context)}
+      </article>
+    </section>
+  `
+}
+
+function composedDashboardTemplate (context: AccountRootContext & FeedRootContext) {
+  return html`
+    <main>
+      <h1>Workspace</h1>
+      ${accountRoot(context)}
+      ${feedRoot(context)}
+    </main>
+  `
+}
+
+export function composedDashboard (context: AccountRootContext & FeedRootContext) {
+  return render(composedDashboardTemplate(context))
+}
+```
+
+Use fragments when preserving the full template structure is the point. Use composed functions when these pieces need to be reused by other templates.
+
 ## Install
 
 ```sh
@@ -238,9 +426,16 @@ function contactDetailTemplate ({ contact, fragmentId }) {
   const html = frag(fragmentId)
 
   return html`
-    ${html.fragment.start('archive-ui')}
-    <button>${contact.archived ? 'Unarchive' : 'Archive'}</button>
-    ${html.fragment.end}
+    <article>
+      <h3>${contact.name}</h3>
+      <p>${contact.email}</p>
+
+      <div hx-target="this">
+        ${html.fragment.start('archive-ui')}
+        <button>${contact.archived ? 'Unarchive' : 'Archive'}</button>
+        ${html.fragment.end}
+      </div>
+    </article>
   `
 }
 
@@ -255,9 +450,15 @@ Calling `html('archive-ui')` directly before a template can break editor HTML hi
 const h = frag(fragmentId)
 
 return h/* html */`
-  ${h.fragment.start('archive-ui')}
-  <button>Archive</button>
-  ${h.fragment.end}
+  <article>
+    <h3>${contact.name}</h3>
+
+    <div hx-target="this">
+      ${h.fragment.start('archive-ui')}
+      <button>Archive</button>
+      ${h.fragment.end}
+    </div>
+  </article>
 `
 ```
 
@@ -278,9 +479,16 @@ function contactDetailTemplate ({
   const html = frag<ContactFragment>(fragmentId)
 
   return html`
-    ${html.fragment.start('archive-ui')}
-    <button>${contact.archived ? 'Unarchive' : 'Archive'}</button>
-    ${html.fragment.end}
+    <article>
+      <h3>${contact.name}</h3>
+      <p>${contact.email}</p>
+
+      <div hx-target="this">
+        ${html.fragment.start('archive-ui')}
+        <button>${contact.archived ? 'Unarchive' : 'Archive'}</button>
+        ${html.fragment.end}
+      </div>
+    </article>
   `
 }
 
