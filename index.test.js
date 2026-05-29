@@ -196,7 +196,7 @@ test('renders selected fragment only', () => {
     render(h/* html */`
       <div hx-target="this">
         ${h.fragment.start('archive-ui')}
-        ${h/* html */`<button>${'Archive'}</button>`}
+        ${html`<button>${'Archive'}</button>`}
         ${h.fragment.end}
       </div>
       <p>outside</p>
@@ -481,39 +481,27 @@ test('renders equivalent complex partials as composed template functions', () =>
     /* html */
     '<section>',
     '  <h2>Account</h2>',
-    '',
-    '<article>',
-    '  <h3>Acme</h3>',
-    '',
-    '<menu>',
-    '',
-    '<button>Save</button>',
-    '',
-    '</menu>',
-    '',
-    '</article>',
-    '',
+    '  <article>',
+    '    <h3>Acme</h3>',
+    '    <menu>',
+    '      <button>Save</button>',
+    '    </menu>',
+    '  </article>',
     '</section>'
   ].join('\n')
   const feedRootExpected = [
     /* html */
     '<section>',
     '  <h2>Feed</h2>',
-    '',
-    '<ol>',
-    '',
-    '<li>',
-    '  New signup',
-    '',
-    '<menu>Open</menu>',
-    '',
-    '</li>',
-    '',
-    '</ol>',
-    '',
+    '  <ol>',
+    '    <li>',
+    '      New signup',
+    '      <menu>Open</menu>',
+    '    </li>',
+    '  </ol>',
     '</section>'
   ].join('\n')
-  const fullExpected = /* html */`\n${accountRootExpected}\n\n\n${feedRootExpected}\n`
+  const fullExpected = /* html */`${accountRootExpected}\n${feedRootExpected}`
 
   /**
    * @param {AccountPrimaryActionContext} context
@@ -622,6 +610,52 @@ test('wrapping the whole template in a fragment is redundant', () => {
   assert.equal(render(wrapped(full)), expected)
   assert.equal(render(wrapped(page)), expected)
   assert.equal(render(unwrapped(html)), expected)
+})
+
+test('nested templates isolate fragment scopes', () => {
+  const conflictingChild = html`
+    ${html.fragment.start('dupe')}
+    nested
+    ${html.fragment.end}
+  `
+
+  assert.equal(
+    render(html`
+      ${html.fragment.start('dupe')}
+      parent
+      ${html.fragment.end}
+      ${conflictingChild}
+    `),
+    'parent\nnested'
+  )
+
+  assert.throws(
+    () => render(html('child')`
+      <main>
+        ${html`
+          ${html.fragment.start('child')}
+          child
+          ${html.fragment.end}
+        `}
+      </main>
+    `),
+    FragmentNotFoundError
+  )
+
+  assert.equal(
+    render(html`
+      <main>
+        ${html('child')`
+          <section>
+            ${html.fragment.start('child')}
+            child
+            ${html.fragment.end}
+          </section>
+        `}
+      </main>
+    `),
+    /* html */'<main>\n  child\n</main>'
+  )
 })
 
 test('fragment errors are explicit', () => {

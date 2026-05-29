@@ -108,6 +108,8 @@ render(html`
 // '<div hx-target="this">\n  <button>&lt;Archive&gt;</button>\n</div>'
 ```
 
+Nested results render in their own fragment scope. A parent template does not see fragment IDs declared by child templates; pass a `fragmentId` to the child template when you want the child to render one of its own fragments.
+
 Arrays are inlined with indentation-aware formatting:
 
 ```js
@@ -517,6 +519,7 @@ Lower-level helpers are also exported for advanced cases:
 ### Fragment rules
 
 - Fragment IDs must be unique within a rendered template.
+- Nested template results have their own fragment scope; parent templates do not select or conflict with child fragment IDs.
 - Missing fragments throw `FragmentNotFoundError`.
 - Duplicate fragment IDs throw `DuplicateFragmentError`.
 - `html.fragment.end` without a matching start throws `FragmentBoundaryError`.
