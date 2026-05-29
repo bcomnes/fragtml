@@ -4,14 +4,28 @@ export type {
   FragmentBoundary,
   FragmentEndBoundary,
   FragmentHelpers,
+  FragmentIdOf,
   FragmentStartBoundary,
+  FragmentTemplateArgs,
+  FragmentTemplateContext,
+  FragmentTemplateTypes,
+  ContextForFragment,
+  ContextOf,
   HtmlArrayScalarSubstitution,
   HtmlArraySubstitution,
   HtmlPrimitiveSubstitution,
   HtmlSubstitution,
   HtmlTag,
+  KeysOfUnion,
+  FragmentArgs,
+  LooseContext,
+  Optional,
+  OptionalMerge,
   RenderOptions,
-  TemplateStrings
+  Simplify,
+  TemplateStrings,
+  UnionToIntersection,
+  WithExtraContext
 } from './lib/html-types.js'
 export type { HtmlResult } from './lib/html-result.js'
 export type { RawHtml } from './lib/raw.js'

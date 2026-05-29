@@ -6,12 +6,14 @@
     "declaration": true,
     "declarationMap": true,
     "noEmit": false,
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "removeComments": false
   },
   "exclude": [
     "**/*.test.js",
     "**/*.test.ts",
     "**/*.types.ts",
+    "type-tests.ts",
     "node_modules",
     "coverage",
     ".github"
