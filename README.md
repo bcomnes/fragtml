@@ -447,7 +447,8 @@ render(full({
 render(outer({ text: 'Missing the outer title' }))
 ```
 
-Use marker fragments when template locality matters more than per-fragment input precision. Use composed template functions when each target should have an exact context type.
+Use fragments to preserve the structure of a larger template while still rendering named pieces of it.
+Use function composition when those pieces need to be reused across multiple parent templates, similar to React components or partials in other template languages.
 
 ### Fragment context helpers
 
