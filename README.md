@@ -249,6 +249,18 @@ export function contactDetail (args) {
 }
 ```
 
+Calling `html('archive-ui')` directly before a template can break editor HTML highlighting because many highlighters only recognize a simple tag identifier before the backtick. Assign the fragment tag to a local variable for highlighting, or add a `/* html */` marker. Editors such as Sublime Text and Zed understand this marker:
+
+```js
+const h = frag(fragmentId)
+
+return h/* html */`
+  ${h.fragment.start('archive-ui')}
+  <button>Archive</button>
+  ${h.fragment.end}
+`
+```
+
 In TypeScript, you can use an explicit fragment-name union to type-check both incoming fragment IDs and declared fragment boundaries:
 
 ```ts
@@ -632,6 +644,16 @@ import { frag } from 'fragtml'
 
 const html = frag(fragmentId)
 ```
+
+Calling `html('name')` directly before a template can break editor HTML highlighting because the tag expression is no longer a simple identifier. Assign the result to a local tag name, or use the `/* html */` marker that Sublime Text and Zed understand:
+
+```js
+const h = frag(fragmentId)
+
+return h/* html */`<p>${value}</p>`
+```
+
+This is kind of hit or miss per editor. Play around and see what works. You can usually figure something out.
 
 ### `render(value)`
 
