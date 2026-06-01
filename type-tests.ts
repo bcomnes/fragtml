@@ -25,6 +25,7 @@ import type {
   FragmentArgs,
   FragmentTemplateArgs,
   FragmentTemplateTypes,
+  HtmlRenderable,
   HtmlResult,
   HtmlTag,
   RawHtml,
@@ -113,6 +114,7 @@ type PageTemplateArgsFromTypes = PageTemplateTypes['templateArgs']
 type PageContextFromTypes = PageTemplateTypes['context']
 type PageFragmentIdFromArgs = FragmentIdOf<PageArgsFromFragments>
 type PageFragmentIdFromTypes = PageTemplateTypes['fragmentId']
+type OptionalPageFragmentId = FragmentIdOf<{ fragmentId?: 'inner' | 'outer', context: InnerPageContext }>
 type AnyPageContext = ContextOf<PageArgsFromFragments>
 type OuterFragmentContext = ContextForFragment<PageArgsFromFragments, 'outer'>
 type DashboardTemplateTypes = FragmentTemplateTypes<{
@@ -149,6 +151,8 @@ const templateArgsFull: PageTemplateArgsFromTypes = {
 const typesContextMinimum: PageContextFromTypes = { text: 'Text' }
 const pageFragmentIdFromArgs: PageFragmentIdFromArgs = 'inner'
 const pageFragmentIdFromTypes: PageFragmentIdFromTypes = 'outer'
+const optionalPageFragmentId: OptionalPageFragmentId = 'outer'
+const typedRenderable: HtmlRenderable = [child, trusted, 'text', 1, 1n, false, null, undefined]
 const anyPageContext: AnyPageContext = { foo: 'Foo', title: 'Title', text: 'Text' }
 const outerFragmentContext: OuterFragmentContext = { title: 'Title', text: 'Text' }
 const innerPageArg: PageArgsFromFragments = { fragmentId: 'inner', context: { text: 'Text' } }
@@ -221,6 +225,8 @@ void templateArgsFull
 void typesContextMinimum
 void pageFragmentIdFromArgs
 void pageFragmentIdFromTypes
+void optionalPageFragmentId
+void typedRenderable
 void anyPageContext
 void outerFragmentContext
 void innerPageArg

@@ -958,8 +958,10 @@ Runtime classes such as `HtmlResult` and `RawHtml` are exported from the package
 ```ts
 import type {
   FragmentArgs,
+  FragmentIdOf,
   FragmentTemplateArgs,
   FragmentTemplateTypes,
+  HtmlRenderable,
   HtmlResult,
   HtmlTag,
   RawHtml,

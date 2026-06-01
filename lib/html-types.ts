@@ -64,6 +64,15 @@ export type HtmlArraySubstitution =
   HtmlArrayScalarSubstitution | readonly HtmlArraySubstitution[]
 
 /**
+ * Values commonly accepted by `render(value)`.
+ */
+export type HtmlRenderable =
+  | HtmlResult
+  | RawHtml
+  | HtmlPrimitiveSubstitution
+  | readonly HtmlRenderable[]
+
+/**
  * Any value accepted in a template substitution position.
  */
 export type HtmlSubstitution<FragmentId extends string = string> =
@@ -180,8 +189,10 @@ export type FragmentArgs<
  * Extracts the fragment ID union from a render argument union.
  */
 export type FragmentIdOf<Args> =
-  Args extends { fragmentId: infer FragmentId }
-    ? Extract<FragmentId, string>
+  Args extends unknown
+    ? Args extends { fragmentId?: infer FragmentId }
+      ? Extract<FragmentId, string>
+      : never
     : never
 
 /**
