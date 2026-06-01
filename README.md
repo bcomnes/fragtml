@@ -236,6 +236,43 @@ result.toString()
 `${result}`
 ```
 
+## XML / RSS
+
+`fragtml` can render XML-shaped documents too. Static markup is left alone, and interpolated values are escaped.
+
+```js
+import html, { render } from 'fragtml'
+
+const siteUrl = 'https://example.com'
+const posts = [
+  {
+    title: 'Hello & welcome',
+    href: '/posts/hello'
+  }
+]
+
+const feed = html`<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Example Feed</title>
+    <link>${siteUrl}</link>
+    ${posts.map(post => html`
+      <item>
+        <title>${post.title}</title>
+        <link>${siteUrl}${post.href}</link>
+        <guid>${siteUrl}${post.href}</guid>
+      </item>
+    `)}
+  </channel>
+</rss>
+`
+
+render(feed)
+// '<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0">...'
+```
+
+Set the HTTP `Content-Type` at the response boundary, such as `application/rss+xml; charset=utf-8` for RSS.
+
 ## Safe interpolation
 
 Static template HTML is left as-is. Ordinary substitutions are escaped:
