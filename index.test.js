@@ -145,7 +145,7 @@ test('renders nested arrays without excess empty lines', () => {
 
       </ul>
     `),
-    /* html */'<ul>\n\n  <li>\n    <div>apple</div>\n  </li>\n  <li>\n    <div>banana</div>\n  </li>\n  <li>\n    <div>kiwi</div>\n  </li>\n\n</ul>'
+    /* html */'<ul>\n\n  <li>\n  <div>apple</div>\n</li>\n  <li>\n  <div>banana</div>\n</li>\n  <li>\n  <div>kiwi</div>\n</li>\n\n</ul>'
   )
 })
 
@@ -482,11 +482,11 @@ test('renders equivalent complex partials as composed template functions', () =>
     '<section>',
     '  <h2>Account</h2>',
     '  <article>',
-    '    <h3>Acme</h3>',
-    '    <menu>',
-    '      <button>Save</button>',
-    '    </menu>',
-    '  </article>',
+    '  <h3>Acme</h3>',
+    '  <menu>',
+    '  <button>Save</button>',
+    '</menu>',
+    '</article>',
     '</section>'
   ].join('\n')
   const feedRootExpected = [
@@ -494,11 +494,11 @@ test('renders equivalent complex partials as composed template functions', () =>
     '<section>',
     '  <h2>Feed</h2>',
     '  <ol>',
-    '    <li>',
-    '      New signup',
-    '      <menu>Open</menu>',
-    '    </li>',
-    '  </ol>',
+    '  <li>',
+    '  New signup',
+    '  <menu>Open</menu>',
+    '</li>',
+    '</ol>',
     '</section>'
   ].join('\n')
   const fullExpected = /* html */`${accountRootExpected}\n${feedRootExpected}`

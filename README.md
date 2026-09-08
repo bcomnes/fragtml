@@ -335,6 +335,17 @@ render(html`
 
 Nested results render in their own fragment scope. A parent template does not see fragment IDs declared by child templates; pass a `fragmentId` to the child template when you want the child to render one of its own fragments.
 
+Rendered children and `raw()` values are inserted unchanged. Their newlines, indentation, blank lines, and trailing whitespace belong to the content, even when inserted inline:
+
+```js
+const code = html`<pre>${raw('first\n  second\n')}</pre>`
+
+render(html`<main>${code}</main>`)
+// '<main><pre>first\n  second\n</pre></main>'
+```
+
+The parent dedents its own template text, but does not reindent the lines inside a child to match their new position. This also applies to children inside arrays and selected fragments. Generated HTML source may therefore look less uniformly indented than a hand-formatted document; whitespace-sensitive content remains intact.
+
 Arrays are inlined with indentation-aware formatting:
 
 ```js
@@ -348,7 +359,7 @@ render(html`
 // '<ul>\n  <li>one</li>\n  <li>two</li>\n</ul>'
 ```
 
-String substitutions containing newlines are split and aligned to the surrounding indentation.
+Array separators follow the parent's indentation; the rendered items themselves are preserved. Ordinary string substitutions containing newlines are still split and aligned to the surrounding indentation. Use a nested `html` result or `raw()` for already-rendered HTML, not an ordinary string substitution.
 
 ## Boolean attributes
 
